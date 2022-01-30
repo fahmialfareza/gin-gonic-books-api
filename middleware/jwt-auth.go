@@ -24,6 +24,7 @@ func AuthorizeJWT(jwtServ service.JWTService) gin.HandlerFunc {
 			claims := token.Claims.(jwt.MapClaims)
 			log.Println("Claim[user_id]: ", claims["user_id"])
 			log.Println("Claim[issuer]: ", claims["issuer"])
+			c.Set("user_id", claims["user_id"])
 		} else {
 			log.Println(err)
 			response := helper.BuildErrorResponse("Token is not valid", err.Error(), nil)

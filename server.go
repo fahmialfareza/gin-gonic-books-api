@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/fahmialfareza/go_gonic_api/config"
 	"github.com/fahmialfareza/go_gonic_api/controller"
+	"github.com/fahmialfareza/go_gonic_api/middleware"
 	"github.com/fahmialfareza/go_gonic_api/repository"
 	"github.com/fahmialfareza/go_gonic_api/service"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func main() {
 		authRoutes.POST("/register", authController.Register)
 	}
 
-	userRoutes := r.Group("/api/user")
+	userRoutes := r.Group("/api/user", middleware.AuthorizeJWT(jwtService))
 	{
 		userRoutes.GET("/profile", userController.Profile)
 		userRoutes.PUT("/profile", userController.Update)

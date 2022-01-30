@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/fahmialfareza/go_gonic_api/dto"
 	"github.com/fahmialfareza/go_gonic_api/helper"
 	"github.com/fahmialfareza/go_gonic_api/service"
@@ -38,13 +37,11 @@ func (c *userController) Update(context *gin.Context) {
 		return
 	}
 
-	authHeader := context.GetHeader("Authorization")
-	token, errToken := c.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		panic(errToken.Error())
+	userID, ok := context.Get("user_id")
+	if !ok {
+		panic("invalid credential")
 	}
-	claims := token.Claims.(jwt.MapClaims)
-	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
+	id, err := strconv.ParseUint(fmt.Sprintf("%v", userID), 10, 64)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -55,13 +52,11 @@ func (c *userController) Update(context *gin.Context) {
 }
 
 func (c *userController) Profile(context *gin.Context) {
-	authHeader := context.GetHeader("Authorization")
-	token, err := c.jwtService.ValidateToken(authHeader)
-	if err != nil {
-		panic(err.Error())
+	userID, ok := context.Get("user_id")
+	if !ok {
+		panic("invalid credential")
 	}
-	claims := token.Claims.(jwt.MapClaims)
-	user := c.userService.Profile(fmt.Sprintf("%v", claims["user_id"]))
+	user := c.userService.Profile(fmt.Sprintf("%v", userID))
 	res := helper.BuildResponse(true, "OK!", user)
 	context.JSON(http.StatusOK, res)
 }
