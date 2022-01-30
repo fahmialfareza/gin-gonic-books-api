@@ -3,13 +3,18 @@ package main
 import (
 	"github.com/fahmialfareza/go_gonic_api/config"
 	"github.com/fahmialfareza/go_gonic_api/controller"
+	"github.com/fahmialfareza/go_gonic_api/repository"
+	"github.com/fahmialfareza/go_gonic_api/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 var (
 	db             *gorm.DB                  = config.SetupDatabaseConnection()
-	authController controller.AuthController = controller.NewAuthController()
+	userRepository repository.UserRepository = repository.NewUserRepository(db)
+	jwtService     service.JWTService        = service.NewJWTService()
+	authService    service.AuthService       = service.NewAuthService(userRepository)
+	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
 )
 
 func main() {

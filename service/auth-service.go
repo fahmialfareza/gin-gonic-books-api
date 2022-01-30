@@ -57,7 +57,7 @@ func (service *authService) FindByEmail(email string) entity.User {
 
 func (service *authService) IsDuplicateEmail(email string) bool {
 	res := service.userRepository.IsDuplicateEmail(email)
-	return !(res.Error == nil)
+	return (res.Error == nil)
 }
 
 func comparePassword(hashedPwd string, plainPassword []byte) bool {
