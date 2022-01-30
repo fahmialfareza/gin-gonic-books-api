@@ -69,7 +69,7 @@ func (c *bookController) Insert(context *gin.Context) {
 		if !ok {
 			panic("invalid credential")
 		}
-		convertedUserID, err := strconv.ParseUint(fmt.Sprintf("v", userID), 10, 64)
+		convertedUserID, err := strconv.ParseUint(fmt.Sprintf("%v", userID), 10, 64)
 		if err == nil {
 			bookCreateDTO.UserID = convertedUserID
 		}
@@ -81,6 +81,13 @@ func (c *bookController) Insert(context *gin.Context) {
 
 func (c *bookController) Update(context *gin.Context) {
 	var bookUpdateDTO dto.BookUpdateDTO
+	id, err := strconv.ParseUint(context.Param("id"), 10, 64)
+	if err != nil {
+		res := helper.BuildErrorResponse("Failed to process request", "No param id were found", helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	bookUpdateDTO.ID = id
 	errDTO := context.ShouldBind(&bookUpdateDTO)
 	if errDTO != nil {
 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
@@ -92,11 +99,11 @@ func (c *bookController) Update(context *gin.Context) {
 	if !ok {
 		panic("invalid credential")
 	}
-	convertedUserID, err := strconv.ParseUint(fmt.Sprintf("v", userID), 10, 64)
+	convertedUserID, err := strconv.ParseUint(fmt.Sprintf("%v", userID), 10, 64)
 	if err == nil {
 		bookUpdateDTO.UserID = convertedUserID
 	}
-	if c.bookService.IsAllowedToEdit(string(convertedUserID), bookUpdateDTO.ID) {
+	if c.bookService.IsAllowedToEdit(strconv.Itoa(int(convertedUserID)), bookUpdateDTO.ID) {
 		res := c.bookService.Update(bookUpdateDTO)
 		response := helper.BuildResponse(true, "OK!", res)
 		context.JSON(http.StatusOK, response)
@@ -120,12 +127,12 @@ func (c *bookController) Delete(context *gin.Context) {
 	if !ok {
 		panic("invalid credential")
 	}
-	convertedUserID, err := strconv.ParseUint(fmt.Sprintf("v", userID), 10, 64)
+	convertedUserID, err := strconv.ParseUint(fmt.Sprintf("%v", userID), 10, 64)
 	if err != nil {
 		panic(err)
 	}
 
-	if c.bookService.IsAllowedToEdit(string(convertedUserID), book.ID) {
+	if c.bookService.IsAllowedToEdit(strconv.Itoa(int(convertedUserID)), book.ID) {
 		c.bookService.Delete(book)
 		response := helper.BuildResponse(true, "Deleted!", helper.EmptyObj{})
 		context.JSON(http.StatusOK, response)
